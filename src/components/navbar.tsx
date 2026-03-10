@@ -10,7 +10,7 @@ export default function Navbar({ user }: { user: any }) {
     return (
         <nav className="">
             {!user && <div className="fixed top-0 right-0 h-screen flex items-center justify-center p-8 w-full bg-black/70 z-50">
-                <div className="w-full p-6 rounded-2xl bg-white space-y-5 border border-brand/70">
+                <div className="w-full p-6 md:w-100 rounded-2xl bg-white space-y-5 border border-brand/70">
                     <h1 className="text-xl font-semibold">Please sign in to continue</h1>
                     <Button
                         onPress={handleGoogleLogin}
