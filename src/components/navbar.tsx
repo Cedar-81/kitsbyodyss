@@ -1,11 +1,68 @@
 import { Link, useParams, useLocation } from "react-router-dom";
-import { Button } from "@heroui/react";
-import { handleGoogleLogin } from "../utils/api";
+import { addToast, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalContent, useDisclosure, User } from "@heroui/react";
+import { handleGoogleLogin, handleGoogleLogout, UserAPI } from "../utils/api";
+import UserInfo from "./user_info";
+import { useEffect } from "react";
+import { useProfileStore } from "../utils/store/app_store";
 
 export default function Navbar({ user }: { user: any }) {
     const { id } = useParams();
     const location = useLocation();
+    const { profile, setProfile, populateProfileForm, setCurrentProfileId, setIsUpdating, profileFormData } = useProfileStore()
     console.log("user in navbar:", user);
+
+    const handleEdit = () => {
+        console.log("profile: ", profile)
+        if(profile && profile.id) {
+            console.log("in hereeee")
+           
+            populateProfileForm({
+                username: profile.username,
+                display_name: profile.display_name,
+                user_id: profile.user_id,
+                id: profile.id
+            })
+       
+            console.log("formdata: ", profileFormData)
+            setCurrentProfileId(profile.id)
+            setIsUpdating(true)
+        }
+    }
+
+    useEffect(() => {
+        const generateUser = async () => {            
+            const {data:profileData } = await UserAPI.getByUserId(user.id)
+
+            if(profileData && profileData?.length !== 0) {
+                setProfile({
+                    username: profileData[0].username,
+                    display_name: profileData[0].display_name,
+                    id: profileData[0].id,
+                    user_id: profileData[0].user_id
+                })
+                return
+            }
+
+            const res = await fetch("https://randomuser.me/api/");
+            const data = await res.json();
+            const username = data.results[0].login.username
+
+            const userRes = await UserAPI.create({user_id: user.id, username, display_name: user.user_metadata.full_name})
+
+            if(userRes.error) {
+                console.error(userRes.error)
+                addToast({title: "Couldn't add user info", color: "danger"})
+            } else {
+                console.log("User info generated")
+            }
+        }
+
+        if(user && !profile) {
+            generateUser()
+        }
+    }, [user])
+
+    const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
     return (
         <nav className="">
@@ -21,6 +78,13 @@ export default function Navbar({ user }: { user: any }) {
                     </Button>
                 </div>
             </div>}
+
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                <ModalContent>
+                    {(onClose) => <UserInfo onClose={onClose} />}
+                </ModalContent>
+            </Modal>    
+            
             <div className="flex justify-between items-center relative w-full border-b border-black/20 py-2 px-5 md:px-10">
                 <svg width="92" height="45" className="h-8 w-min" viewBox="0 0 92 45" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M89.9933 39.2985L88.665 39.3803C88.6423 39.2667 88.5935 39.1645 88.5185 39.0737C88.4436 38.9806 88.3448 38.9068 88.2222 38.8523C88.1019 38.7956 87.9577 38.7672 87.7897 38.7672C87.5649 38.7672 87.3753 38.8149 87.2209 38.9102C87.0665 39.0033 86.9893 39.1282 86.9893 39.2849C86.9893 39.4098 87.0393 39.5154 87.1392 39.6016C87.2391 39.6879 87.4105 39.7572 87.6535 39.8094L88.6003 40.0001C89.1089 40.1046 89.4881 40.2726 89.7379 40.5042C89.9876 40.7358 90.1125 41.0401 90.1125 41.417C90.1125 41.7598 90.0115 42.0607 89.8094 42.3195C89.6096 42.5784 89.3348 42.7805 88.9852 42.9258C88.6378 43.0688 88.237 43.1403 87.7829 43.1403C87.0903 43.1403 86.5386 42.9962 86.1276 42.7078C85.7189 42.4172 85.4794 42.0221 85.409 41.5226L86.836 41.4476C86.8792 41.6588 86.9836 41.82 87.1494 41.9313C87.3151 42.0402 87.5274 42.0947 87.7863 42.0947C88.0406 42.0947 88.2449 42.0459 88.3993 41.9483C88.556 41.8484 88.6355 41.7201 88.6377 41.5634C88.6355 41.4317 88.5799 41.3239 88.4709 41.2399C88.3619 41.1536 88.1938 41.0877 87.9668 41.0423L87.0608 40.8618C86.5499 40.7596 86.1696 40.5825 85.9199 40.3305C85.6724 40.0785 85.5486 39.7572 85.5486 39.3666C85.5486 39.0306 85.6394 38.7411 85.8211 38.4981C86.005 38.2552 86.2627 38.0679 86.5942 37.9362C86.928 37.8045 87.3185 37.7386 87.7658 37.7386C88.4266 37.7386 88.9465 37.8783 89.3257 38.1575C89.7072 38.4368 89.9297 38.8172 89.9933 39.2985Z" fill="#E03E1A"/>
@@ -45,9 +109,32 @@ export default function Navbar({ user }: { user: any }) {
                     >
                         Continue with Google
                     </Button> :
-                    <Link to={`/profile/${user.id}`} className="size-9 border-2 border-brand text-white rounded-full flex items-center justify-center relative bg-brand">
-                        <img src={user.user_metadata.avatar_url} alt="User Avatar" className="rounded-full h-full w-full object-cover absolute" />
-                    </Link>
+                    <Dropdown>
+                        <DropdownTrigger>
+                            <div className="size-9 border-2 border-brand text-white rounded-full flex items-center justify-center relative bg-brand">
+                                <img src={user.user_metadata.avatar_url} alt="User Avatar" className="rounded-full h-full w-full object-cover absolute" />
+                            </div>
+                        </DropdownTrigger>
+                        <DropdownMenu aria-label="Static Actions">
+                            <DropdownItem key="info">
+                                <User
+                                    avatarProps={{
+                                        src: user.user_metadata.avatar_url,
+                                    }}
+                                    description={profile?.username}
+                                    name={profile?.display_name}
+                                />
+                            </DropdownItem>
+                            <DropdownItem key="your_kits"><Link to={`/profile/${user.id}`}>Your kits</Link></DropdownItem>
+                            <DropdownItem onClick={() => {handleEdit(); onOpen()}} key="set_info">Edit profile</DropdownItem>
+                            <DropdownItem onClick={handleGoogleLogout} key="logout" className="text-danger" color="danger">
+                                Logout
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                    // <Link to={`/profile/${user.id}`} className="size-9 border-2 border-brand text-white rounded-full flex items-center justify-center relative bg-brand">
+                    //     <img src={user.user_metadata.avatar_url} alt="User Avatar" className="rounded-full h-full w-full object-cover absolute" />
+                    // </Link>
                     }
                 </div>
             </div>

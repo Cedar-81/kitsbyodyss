@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 
-
+ 
 export const handleGoogleLogin = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -12,7 +12,14 @@ export const handleGoogleLogin = async () => {
     if (error) {
       console.error("Login error:", error.message);
     }
-  };
+};
+
+export const handleGoogleLogout = async () => {
+  const { error } = await supabase.auth.signOut()
+  if (error) {
+      console.error("Login error:", error.message);
+  }
+}
 
 
   export const uploadImage = async (file: File) => {
@@ -94,6 +101,13 @@ const createChildAPI = (table: string) => ({
       .eq("overview_id", overview_id);
   },
 
+  getByUserId: async (user_id: string) => {
+    return await supabase
+      .from(table)
+      .select("*")
+      .eq("user_id", user_id);
+  },
+
   update: async (id: string, updates: any) => {
     return await supabase
       .from(table)
@@ -115,3 +129,4 @@ const createChildAPI = (table: string) => ({
 export const ActivitiesAPI = createChildAPI("activities");
 export const FoodAPI = createChildAPI("food");
 export const AccommodationAPI = createChildAPI("accommodation");
+export const UserAPI = createChildAPI("profile")

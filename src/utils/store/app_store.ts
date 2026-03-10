@@ -97,6 +97,14 @@ export interface KitItem {
   [key: string]: any;
 }
 
+export interface Profile {
+  id?: string,
+  username: string,
+  display_name: string,
+  user_id?: string,
+  [key: string]: any;
+}
+
 // ============== STORES ==============
 
 // -------- General Store --------
@@ -126,6 +134,53 @@ export const useUserStore = create<UserStore>((set) => ({
   user: null,
   setUser: (user) => set({ user }),
   clearUser: () => set({ user: null }),
+}));
+
+// -------- Profile Store --------
+export interface ProfileStore {
+  profile: Profile | null;
+  setProfile: (profile: Profile | null) => void;
+  clearProfile: () => void;
+  updateProfileFormField: (field: string, value: any) => void;
+  profileFormData: {
+    username: string,
+    display_name: string,
+  },
+  // whether the form is currently editing an existing item
+  isUpdating: boolean;
+  currentProfileId: string | null;
+  // helpers for update flow
+  setIsUpdating: (updating: boolean) => void;
+  setCurrentProfileId: (id: string | null) => void;
+  populateProfileForm: (item: Profile) => void;
+}
+
+export const useProfileStore = create<ProfileStore>((set) => ({
+  profile: null,
+  setProfile: (profile) => set({ profile }),
+  isUpdating: false,
+  currentProfileId: null,
+  profileFormData: {
+    username: '',
+    display_name: ''
+  },
+  clearProfile: () => set({ profile: null }),
+  setIsUpdating: (updating) => set({ isUpdating: updating }),
+  setCurrentProfileId: (id) => set({ currentProfileId: id }),
+  updateProfileFormField: (field, value) =>
+    set((state) => ({
+      profileFormData: {
+        ...state.profileFormData,
+        [field]: value,
+      },
+    })),
+  populateProfileForm: (item) =>
+    set({
+      profileFormData: {
+        username: item.username || "",
+        display_name: item.display_name || "",
+      },
+    }),
 }));
 
 // -------- Overview Store --------

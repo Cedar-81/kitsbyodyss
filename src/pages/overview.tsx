@@ -7,7 +7,7 @@ import { addToast } from "@heroui/toast";
 export default function Overview() {
   const { id } = useParams();
   const { overview, setOverview } = useOverviewStore();
-  const [isPublished, setIsPublished] = useState(overview?.published);
+  const [isPublished, setIsPublished] = useState(false);
   const { user } = useUserStore();
   console.log("overview from store: ", overview, " published: ", isPublished);
 
@@ -21,6 +21,7 @@ export default function Overview() {
       try {
         const res = await OverviewAPI.getById(id);
         setOverview(res.data);
+        setIsPublished(res.data.published)
         console.log("overview", res);
       } catch (err) {
         console.error("Failed to fetch overview", err);

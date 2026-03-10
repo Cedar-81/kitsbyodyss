@@ -1,17 +1,12 @@
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react"
 import React from "react";
-import { useLocation } from "react-router";
 
 function Input({ placeholder, type = "text", title, options, disabled = false, optionsLeft, optionsRight, titled = false, textarea= false, dropdown_only = false, value, onChangeInput, onSelectLeft, onSelectRight, defaultSelectedLeft, defaultSelectedRight }: { placeholder?: string, disabled?: boolean, textarea?: boolean, type?: string, title?: string, dropdown_only?: boolean, titled?: boolean, options?: string[], optionsLeft?: string[], optionsRight?: string[], value?: string, onChangeInput?: (e: React.ChangeEvent<HTMLInputElement>) => void, onSelectLeft?: (val: string) => void, onSelectRight?: (val: string) => void, defaultSelectedLeft?: string, defaultSelectedRight?: string }) {
     const [selectedKeysLeft, setSelectedKeysLeft] = React.useState<any>(new Set([defaultSelectedLeft || (optionsLeft ? optionsLeft[0] : "")]));
     const [selectedKeysRight, setSelectedKeysRight] = React.useState<any>(new Set([defaultSelectedRight || (optionsRight ? optionsRight[0] : (options ? options[0] : ""))]));
 
     // const { activityFormData, updateActivityFormField } = useActivityStore();
-    // const { accommodationFormData, updateAccommodationFormField } = useAccommodationStore();
-
-    const location = useLocation();
-
-    console.log(location.pathname);
+    // const { accommodationFormData, updateAccommodationFormField } = useAccommodationStore()
 
 
     const selectedValueLeft = React.useMemo(
