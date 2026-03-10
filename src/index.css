@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Onest:wght@100..900&display=swap');
+@import "tailwindcss";
+@plugin './hero.ts';
+/* Note: You may need to change the path to fit your project structure */
+@source '../node_modules/@heroui/theme/dist/**/*.{js,ts,jsx,tsx}';
+@custom-variant dark (&:is(.dark *));
+
+* {
+  font-family: "Onest", sans-serif;
+  font-optical-sizing: auto;
+}
+
+body {
+  background-color: white;
+}
+
+button {
+  cursor: pointer;
+}
+
+@theme {
+  --color-brand-light: #FFF8F3;
+  --color-brand: #E03E1A;
+  --color-brand-gray: #F5F5F5;
+}
