@@ -1,5 +1,5 @@
 import {Dropdown, DropdownTrigger, DropdownMenu, DropdownItem, Button} from "@heroui/react"
-import React, { useState } from "react";
+import React from "react";
 import { useLocation } from "react-router";
 
 function Input({ placeholder, type = "text", title, options, disabled = false, optionsLeft, optionsRight, titled = false, textarea= false, dropdown_only = false, value, onChangeInput, onSelectLeft, onSelectRight, defaultSelectedLeft, defaultSelectedRight }: { placeholder?: string, disabled?: boolean, textarea?: boolean, type?: string, title?: string, dropdown_only?: boolean, titled?: boolean, options?: string[], optionsLeft?: string[], optionsRight?: string[], value?: string, onChangeInput?: (e: React.ChangeEvent<HTMLInputElement>) => void, onSelectLeft?: (val: string) => void, onSelectRight?: (val: string) => void, defaultSelectedLeft?: string, defaultSelectedRight?: string }) {

@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import ActivitiesCard from "../components/activities_card";
 import { useEffect, useState } from "react";
 import { ActivitiesAPI } from "../utils/api";

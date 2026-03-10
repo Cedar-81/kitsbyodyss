@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import {useNavigate, useParams } from "react-router-dom";
 import FoodCard from "../components/food_card";
 import { useEffect, useState } from "react";
 import { FoodAPI } from "../utils/api";

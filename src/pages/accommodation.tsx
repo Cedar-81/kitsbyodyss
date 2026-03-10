@@ -1,4 +1,4 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import AccommodationCard from "../components/accommodation_card";
 import { useEffect, useState } from "react";
 import { AccommodationAPI } from "../utils/api";
