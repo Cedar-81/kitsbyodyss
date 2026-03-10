@@ -102,7 +102,7 @@ export default function Overview() {
 
 
       <div className="space-y-5 md:w-1/2 md:py-5">
-        <div className="space-y-2">
+        <div className="space-y-2 md:w-[70%]">
           <h1 className="text-2xl md:text-4xl font-bold">{overview?.title}</h1>
           <div className="flex flex-col md:flex-row gap-4 md:items-center">
             <div className="flex gap-2 items-center">
@@ -127,10 +127,10 @@ export default function Overview() {
           </div>
         </div>
         <div className="space-y-2 md:mt-6">
-          <div className="flex items-center md:w-1/2 justify-between gap-2">
+          <div className="flex items-center md:w-[70%] justify-between gap-2">
               <Link to={"food"} className="bg-black text-white px-4 flex items-center justify-center py-2 w-full rounded-full h-11">View</Link>
-              {!isPublished && (overview.user_id == user?.id) ? <button onClick={handlePublish} className="bg-brand text-white px-4 py-2 w-full rounded-full h-11">Publish</button> :
-              <button onClick={handleUnPublish} className="border-2 border-brand/80 text-brand/80 px-4 py-2 w-full rounded-full h-11">unPublish</button>}
+              {(overview.user_id == user?.id) && (!isPublished ? <button onClick={handlePublish} className="bg-brand text-white px-4 py-2 w-full rounded-full h-11">Publish</button> :
+              <button onClick={handleUnPublish} className="border-2 border-brand/80 text-brand/80 px-4 py-2 w-full rounded-full h-11">unPublish</button>)}
               {(isPublished && (overview.user_id == user?.id)) && <button onClick={handleCopy} className="size-11 min-w-11 rounded-full border-2 border-brand flex items-center justify-center">
                 <svg className="size-4" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g clip-path="url(#clip0_1999_164)">

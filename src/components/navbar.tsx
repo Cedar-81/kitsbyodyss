@@ -112,7 +112,7 @@ export default function Navbar({ user }: { user: any }) {
                     </Button> :
                     <Dropdown>
                         <DropdownTrigger>
-                            <div className="size-9 border-2 border-brand text-white rounded-full flex items-center justify-center relative bg-brand">
+                            <div className="size-9 cursor-pointer border-2 border-brand text-white rounded-full flex items-center justify-center relative bg-brand">
                                 <img src={user.user_metadata.avatar_url} alt="User Avatar" className="rounded-full h-full w-full object-cover absolute" />
                             </div>
                         </DropdownTrigger>
