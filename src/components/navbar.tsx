@@ -1,4 +1,4 @@
-import { Link, useParams, useLocation } from "react-router-dom";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { addToast, Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Modal, ModalContent, useDisclosure, User } from "@heroui/react";
 import { handleGoogleLogin, handleGoogleLogout, UserAPI } from "../utils/api";
 import UserInfo from "./user_info";
@@ -8,6 +8,7 @@ import { useProfileStore } from "../utils/store/app_store";
 export default function Navbar({ user }: { user: any }) {
     const { id } = useParams();
     const location = useLocation();
+    const navigate = useNavigate()
     const { profile, setProfile, populateProfileForm, setCurrentProfileId, setIsUpdating, profileFormData } = useProfileStore()
     console.log("user in navbar:", user);
 
@@ -125,7 +126,7 @@ export default function Navbar({ user }: { user: any }) {
                                     name={profile?.display_name}
                                 />
                             </DropdownItem>
-                            <DropdownItem key="your_kits"><Link to={`/profile/${user.id}`}>Your kits</Link></DropdownItem>
+                            <DropdownItem onClick={() => navigate(`/profile/${user.id}`)} key="your_kits">Your kits</DropdownItem>
                             <DropdownItem onClick={() => {handleEdit(); onOpen()}} key="set_info">Edit profile</DropdownItem>
                             <DropdownItem onClick={handleGoogleLogout} key="logout" className="text-danger" color="danger">
                                 Logout
