@@ -92,6 +92,13 @@ export default function Profile() {
         );
     }
 
+    if(!overviewList || overviewList.length == 0) {
+      <div className='flex items-center justify-center w-full h-screen'>
+        hello world
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-dasharray="60" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="60;0"/></path><path fill="currentColor" d="M12 16c-2.59 0 -4.85 1.21 -6.06 3l6.06 2l6.06 -2c-1.21 -1.79 -3.47 -3 -6.06 -3Z" opacity="0"><set fill="freeze" attributeName="opacity" begin="0.6s" to="1"/><animate fill="freeze" attributeName="d" begin="0.6s" dur="0.4s" values="M12 21c-2.59 0 -4.85 -0.21 -6.06 -2l6.06 2l6.06 -2c-1.21 1.79 -3.47 2 -6.06 2Z;M12 16c-2.59 0 -4.85 1.21 -6.06 3l6.06 2l6.06 -2c-1.21 -1.79 -3.47 -3 -6.06 -3Z"/></path><circle cx="12" cy="12" r="1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" opacity="0"><set fill="freeze" attributeName="opacity" begin="1.1s" to="1"/><animate fill="freeze" attributeName="r" begin="1.1s" dur="0.2s" values="0;1"/></circle><g fill="currentColor"><circle cx="7" cy="12" transform="rotate(15 12 12)"><animate fill="freeze" attributeName="r" begin="0.9s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(65 12 12)"><animate fill="freeze" attributeName="r" begin="0.95s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(115 12 12)"><animate fill="freeze" attributeName="r" begin="1s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(165 12 12)"><animate fill="freeze" attributeName="r" begin="1.05s" dur="0.2s" to="1"/></circle></g><path fill="none" stroke="currentColor" stroke-dasharray="8" stroke-dashoffset="8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12h-5.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="1.3s" dur="0.2s" to="0"/><animateTransform fill="freeze" attributeName="transform" begin="1.5s" dur="0.2s" type="rotate" values="0 12 12;15 12 12"/></path></svg>
+      </div>
+    }
+
   return (
     <div className="p-5 md:px-12 space-y-5 w-full">
 
@@ -114,7 +121,7 @@ export default function Profile() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 w-full justify-between gap-4">
+        {overviewList.length !== 0 ? <div className="grid grid-cols-2 md:grid-cols-5 w-full justify-between gap-4">
             {overviewList.map((overview) => (
                 <div onClick={() => navigate(`/${overview.id}`)} key={overview.id} className="space-y-2 relative w-full"> 
                     <div className="h-40 md:h-72 w-full bg-brand/10 rounded-lg shadow-lg">
@@ -139,7 +146,14 @@ export default function Profile() {
                     <h2 className="text-base font-semibold text-black/70 leading-5 md:text-lg line-clamp-2">{overview.title}</h2>
                 </div>
             ))}
-        </div>
+        </div> :
+            <div className="h-[70%] w-full flex justify-center items-center">
+              <div className="text-center space-y-2 w-[80%] mx-auto text-brand/40">
+                <svg xmlns="http://www.w3.org/2000/svg" className="size-20 mx-auto" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-dasharray="60" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="60;0"/></path><path fill="currentColor" d="M12 16c-2.59 0 -4.85 1.21 -6.06 3l6.06 2l6.06 -2c-1.21 -1.79 -3.47 -3 -6.06 -3Z" opacity="0"><set fill="freeze" attributeName="opacity" begin="0.6s" to="1"/><animate fill="freeze" attributeName="d" begin="0.6s" dur="0.4s" values="M12 21c-2.59 0 -4.85 -0.21 -6.06 -2l6.06 2l6.06 -2c-1.21 1.79 -3.47 2 -6.06 2Z;M12 16c-2.59 0 -4.85 1.21 -6.06 3l6.06 2l6.06 -2c-1.21 -1.79 -3.47 -3 -6.06 -3Z"/></path><circle cx="12" cy="12" r="1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" opacity="0"><set fill="freeze" attributeName="opacity" begin="1.1s" to="1"/><animate fill="freeze" attributeName="r" begin="1.1s" dur="0.2s" values="0;1"/></circle><g fill="currentColor"><circle cx="7" cy="12" transform="rotate(15 12 12)"><animate fill="freeze" attributeName="r" begin="0.9s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(65 12 12)"><animate fill="freeze" attributeName="r" begin="0.95s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(115 12 12)"><animate fill="freeze" attributeName="r" begin="1s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(165 12 12)"><animate fill="freeze" attributeName="r" begin="1.05s" dur="0.2s" to="1"/></circle></g><path fill="none" stroke="currentColor" stroke-dasharray="8" stroke-dashoffset="8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12h-5.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="1.3s" dur="0.2s" to="0"/><animateTransform fill="freeze" attributeName="transform" begin="1.5s" dur="0.2s" type="rotate" values="0 12 12;15 12 12"/></path></svg>
+                <h1 className="lg:text-lg font-semibold">Woah... such emptiness! Click the + button above to start a new kit</h1>
+              </div>
+            </div>
+        }
 
         {/* <button onClick={handleGoogleLogout} className="w-full flex items-center justify-center text-brand/80 text-sm">
           <svg className="h-3" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
