@@ -84,7 +84,15 @@ export default function FoodCard({ food }: { food: any }) {
                 </svg>
                 <h4>{food.price} {food.currency_code || "NGN"}</h4>
             </div>
-            <button disabled={food.booking_link.trim() == ""} className="flex gap-2 disabled:opacity-25 items-center text-sm">
+            <button
+              onClick={() => {
+                const link = food.booking_link?.trim();
+                if (!link) return;
+
+                window.open(link, "_blank", "noopener,noreferrer");
+              }}
+
+              disabled={food.booking_link.trim() == ""} className="flex gap-2 disabled:opacity-25 items-center text-sm">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7.64334 12.3574L12.3575 7.64322M5.87501 9.41072L4.69667 10.5891C4.38714 10.8986 4.1416 11.2661 3.97408 11.6705C3.80656 12.0749 3.72034 12.5084 3.72034 12.9461C3.72034 13.3839 3.80656 13.8173 3.97408 14.2218C4.1416 14.6262 4.38714 14.9937 4.69667 15.3032C5.00621 15.6128 5.37368 15.8583 5.77811 16.0258C6.18254 16.1933 6.61601 16.2796 7.05376 16.2796C7.49151 16.2796 7.92497 16.1933 8.3294 16.0258C8.73383 15.8583 9.1013 15.6128 9.41084 15.3032L10.5875 14.1249M9.41001 5.87488L10.5883 4.69655C10.8979 4.38701 11.2653 4.14148 11.6698 3.97396C12.0742 3.80644 12.5077 3.72021 12.9454 3.72021C13.3832 3.72021 13.8166 3.80644 14.2211 3.97396C14.6255 4.14148 14.993 4.38701 15.3025 4.69655C15.612 5.00609 15.8576 5.37356 16.0251 5.77799C16.1926 6.18242 16.2788 6.61588 16.2788 7.05363C16.2788 7.49139 16.1926 7.92485 16.0251 8.32928C15.8576 8.73371 15.612 9.10118 15.3025 9.41072L14.1242 10.5891" stroke="#E03E1A" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>

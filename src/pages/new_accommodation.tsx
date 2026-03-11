@@ -10,7 +10,7 @@ import { useAccommodationStore } from '../utils/store/app_store'
 import { addToast } from '@heroui/toast'
 
 export default function NewAccommodation() {
-  const { id } = useParams();
+  const { id, user_id } = useParams();
   const navigate = useNavigate();
 
   const { accommodationFormData, accommodationLoading, updateAccommodationFormField, resetAccommodationForm, setAccommodationLoading, isUpdating, currentAccommodationId, setIsUpdating, setCurrentAccommodationId } = useAccommodationStore();
@@ -63,7 +63,7 @@ export default function NewAccommodation() {
           setIsUpdating(false);
           setCurrentAccommodationId(null);
         }
-        navigate(`/${id}/accommodation`);
+        navigate(`/${user_id}/${id}/accommodation`);
         addToast({ title: isUpdating ? 'Accommodation updated!' : 'New accommodation added!', color: 'success' });
       }
     } catch (err) {

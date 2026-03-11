@@ -10,7 +10,7 @@ import { useActivityStore } from '../utils/store/app_store'
 import { addToast } from '@heroui/toast'
 
 export default function NewActivity() {
-  const { id } = useParams();
+  const { id, user_id } = useParams();
   const navigate = useNavigate();
 
   const { activityFormData, activityLoading, updateActivityFormField, resetActivityForm, setActivityLoading, isUpdating, currentActivityId, setIsUpdating, setCurrentActivityId } = useActivityStore();
@@ -68,7 +68,7 @@ export default function NewActivity() {
           setIsUpdating(false);
           setCurrentActivityId(null);
         }
-        navigate(`/${id}/activities`);
+        navigate(`/${user_id}/${id}/activities`);
         addToast({ title: isUpdating ? 'Activity updated!' : 'New activity added!', color: 'success' });
       }
     } catch (err) {

@@ -10,7 +10,7 @@ import { useFoodStore } from "../utils/store/app_store";
 import { addToast } from "@heroui/toast";
 
 export default function NewFood() {
-  const { id } = useParams();
+  const { id, user_id } = useParams();
   const navigate = useNavigate();
 
   const { 
@@ -77,7 +77,7 @@ export default function NewFood() {
           setIsUpdating(false);
           setCurrentFoodId(null);
         }
-        navigate(`/${id}/food`);
+        navigate(`/${user_id}/${id}/food`);
         addToast({ title: isUpdating ? "Food updated!" : "New food added!", color: "success" });
       }
     } catch (err) {
