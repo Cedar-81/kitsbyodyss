@@ -3,14 +3,13 @@ import FoodCard from "../components/food_card";
 import { useEffect, useState } from "react";
 import { FoodAPI } from "../utils/api";
 import { addToast } from "@heroui/toast";
-import { useFoodStore, useProfileStore, useUserStore } from "../utils/store/app_store";
+import { useFoodStore, useProfileStore } from "../utils/store/app_store";
 
 export default function Food() {
     const { id, user_id } = useParams();
     const [foodList, setFoodList] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
-    const { user } = useUserStore();
     const { setIsUpdating, setCurrentFoodId } = useFoodStore();
     const { profile } = useProfileStore()
 

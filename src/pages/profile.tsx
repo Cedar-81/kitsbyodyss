@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { OverviewAPI, UserAPI } from "../utils/api";
-import { useKitStore, useOverviewStore, useProfileStore, useUserStore, type Profile } from "../utils/store/app_store";
+import { useKitStore, useOverviewStore, useUserStore, type Profile } from "../utils/store/app_store";
 import { addToast } from "@heroui/toast";
 import { Tooltip } from "@heroui/react";
 
@@ -52,7 +52,6 @@ export default function Profile() {
 
 
   const { populateKitForm, setIsUpdating, setCurrentKitId, kitFormData} = useKitStore();
-  const { profile } = useProfileStore()
   const { setOverview, overview} = useOverviewStore();
   
     const handleEdit = async (id: string) => {
