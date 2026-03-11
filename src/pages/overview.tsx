@@ -1,15 +1,16 @@
 import { Link, useParams } from "react-router";
 import { useEffect, useState } from "react";
-import { OverviewAPI } from "../utils/api";
-import {  useOverviewStore, useUserStore } from "../utils/store/app_store";
+import { OverviewAPI, UserAPI } from "../utils/api";
+import {  useOverviewStore, useProfileStore, useUserStore } from "../utils/store/app_store";
 import { addToast } from "@heroui/toast";
 
 export default function Overview() {
-  const { id } = useParams();
+  const { id, user_id } = useParams();
   const { overview, setOverview } = useOverviewStore();
   const [isPublished, setIsPublished] = useState(false);
   const { user } = useUserStore();
-  console.log("overview from store: ", overview, " published: ", isPublished);
+  const { profile, setProfile } = useProfileStore()
+  console.log("overview from store: ", overview, " published: ", isPublished, "profile: ", profile);
 
   useEffect(() => {
     //retrieve all overviews
@@ -24,10 +25,12 @@ export default function Overview() {
         setIsPublished(res.data.published)
         console.log("overview", res);
       } catch (err) {
+        setOverview(null)
         console.error("Failed to fetch overview", err);
       }
     }
   };
+
 
   const handlePublish = async () => {
     addToast({ title: "Publishing kit...", color: "primary" });
@@ -71,12 +74,53 @@ export default function Overview() {
     }
   };
 
+  const handlePurchase = async () => {
+    if(profile?.user_id && id) {
+      addToast({title: "Handling Kit purchase...", color: "primary"})
+      const res = await UserAPI.addPurchasedKitUnique(profile.user_id, id)
+
+      if(res.error) {
+        console.error(res.error)
+        addToast({title: "Couldn't save purchase!", description: "Please reach out to use with your purchase reference number to recitfy issue.", color: "danger" })
+      } else {
+        addToast({title: "Kit purchase saved successfully.", color: "success"})
+        setProfile(res.data)
+      }
+    }
+  }
+
+  let is_kit_published = false
+
+  if( (user_id != profile?.user_id) && overview?.published) { // if current user isn't the owner and kit is published
+    is_kit_published = true
+  } else if(user_id == profile?.user_id) { //current user is the owner and kit is either published or unpublished
+    is_kit_published = true
+  }
+
+  const can_view_kit = (id && 
+                        profile?.purchased_kits && 
+                        profile.purchased_kits.length != 0 && 
+                        profile.purchased_kits.includes(id)) 
+
+  console.log("can_view_kits: ", can_view_kit)
+
   if(!overview) {
     return (
       <div className='flex items-center justify-center w-full h-screen'>
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-brand"></div>
       </div>
     );
+  }
+
+  if(!is_kit_published) {
+    return(
+      <div className="h-screen w-full flex justify-center items-center">
+        <div className="text-center space-y-2 w-[80%] mx-auto text-brand/40">
+          <svg xmlns="http://www.w3.org/2000/svg" className="size-20 mx-auto" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-dasharray="60" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.6s" values="60;0"/></path><path fill="currentColor" d="M12 16c-2.59 0 -4.85 1.21 -6.06 3l6.06 2l6.06 -2c-1.21 -1.79 -3.47 -3 -6.06 -3Z" opacity="0"><set fill="freeze" attributeName="opacity" begin="0.6s" to="1"/><animate fill="freeze" attributeName="d" begin="0.6s" dur="0.4s" values="M12 21c-2.59 0 -4.85 -0.21 -6.06 -2l6.06 2l6.06 -2c-1.21 1.79 -3.47 2 -6.06 2Z;M12 16c-2.59 0 -4.85 1.21 -6.06 3l6.06 2l6.06 -2c-1.21 -1.79 -3.47 -3 -6.06 -3Z"/></path><circle cx="12" cy="12" r="1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" opacity="0"><set fill="freeze" attributeName="opacity" begin="1.1s" to="1"/><animate fill="freeze" attributeName="r" begin="1.1s" dur="0.2s" values="0;1"/></circle><g fill="currentColor"><circle cx="7" cy="12" transform="rotate(15 12 12)"><animate fill="freeze" attributeName="r" begin="0.9s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(65 12 12)"><animate fill="freeze" attributeName="r" begin="0.95s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(115 12 12)"><animate fill="freeze" attributeName="r" begin="1s" dur="0.2s" to="1"/></circle><circle cx="7" cy="12" transform="rotate(165 12 12)"><animate fill="freeze" attributeName="r" begin="1.05s" dur="0.2s" to="1"/></circle></g><path fill="none" stroke="currentColor" stroke-dasharray="8" stroke-dashoffset="8" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 12h-5.5"><animate fill="freeze" attributeName="stroke-dashoffset" begin="1.3s" dur="0.2s" to="0"/><animateTransform fill="freeze" attributeName="transform" begin="1.5s" dur="0.2s" type="rotate" values="0 12 12;15 12 12"/></path></svg>
+          <h1 className="lg:text-lg font-semibold">This kit hasn't been published yet!</h1>
+        </div>
+      </div>
+    )
   }
 
 
@@ -128,7 +172,7 @@ export default function Overview() {
         </div>
         <div className="space-y-2 md:mt-6">
           <div className="flex items-center md:w-[70%] justify-between gap-2">
-              <Link to={"food"} className="bg-black text-white px-4 flex items-center justify-center py-2 w-full rounded-full h-11">View</Link>
+              {((overview.user_id == user?.id) || can_view_kit) && <Link to={`/${overview.user_id}/${id}/food`} className="bg-black text-white px-4 flex items-center justify-center py-2 w-full rounded-full h-11">View</Link>}
               {(overview.user_id == user?.id) && (!isPublished ? <button onClick={handlePublish} className="bg-brand text-white px-4 py-2 w-full rounded-full h-11">Publish</button> :
               <button onClick={handleUnPublish} className="border-2 border-brand/80 text-brand/80 px-4 py-2 w-full rounded-full h-11">unPublish</button>)}
               {(isPublished && (overview.user_id == user?.id)) && <button onClick={handleCopy} className="size-11 min-w-11 rounded-full border-2 border-brand flex items-center justify-center">
@@ -148,13 +192,13 @@ export default function Overview() {
               </button>}
           </div>
         </div>
-        <div className="p-3 px-4 rounded-xl md:mt-8 flex items-center md:w-1/2 justify-between bg-gray-100 w-full border-1 border-brand">
+        { (((overview.user_id == user?.id)) || !can_view_kit) && <div className="p-3 px-4 rounded-xl md:mt-8 flex items-center md:w-1/2 justify-between bg-gray-100 w-full border-1 border-brand">
           <div>
             <h2 className="font-semibold text-sm">Access Price</h2>
             <p><span className="font-medium">{overview.price_currency_code}</span> {overview.price?.toString() || ''}</p>
           </div>
-          <button className={`h-8 text-sm px-8 rounded-full ${user?.id == overview.user_id ? "bg-brand/50 text-white/50" : "bg-brand text-white"}`} disabled={user?.id == overview.user_id}>Purchase</button>
-        </div>
+          <button onClick={handlePurchase} className={`h-8 text-sm px-8 rounded-full ${user?.id == overview.user_id ? "bg-brand/50 text-white/50" : "bg-brand text-white"}`} disabled={user?.id == overview.user_id}>Purchase</button>
+        </div>}
         <div className="space-y-3 pt-3 md:w-1/2">
           <h2 className="font-medium text-lg">Overview</h2>
           <p className="text-gray-500">

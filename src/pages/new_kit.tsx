@@ -1,14 +1,14 @@
 import Input from "../components/input";
 import ImageSelector from "../components/img_selector";
 import { OverviewAPI, uploadImage } from "../utils/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { currencyCodes } from "../utils/helpers";
 import { addToast } from "@heroui/toast";
 import { useKitStore } from "../utils/store/app_store";
 import { supabase } from "../utils/supabase";
 
 export default function NewKit() {
-  // const { id } = useParams();
+  const { user_id } = useParams();
   const navigate = useNavigate();
   
   const { kitFormData, kitLoading, updateKitFormField, setCurrentKitId, currentKitId, updateKitImages, updateKitImageFiles, resetKitForm, setIsUpdating, isUpdating, setKitLoading } = useKitStore();
@@ -71,7 +71,7 @@ export default function NewKit() {
           setIsUpdating(false);
           setCurrentKitId(null);
         }
-        navigate(`/${res.data.id}`);;
+        navigate(`/${user_id}/${res.data.id}/overview`);;
       }
     } catch (err) {
       console.error(err);

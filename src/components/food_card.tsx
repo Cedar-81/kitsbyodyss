@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useFoodStore, useUserStore } from "../utils/store/app_store";
 import { FoodAPI } from "../utils/api";
 import { addToast } from "@heroui/toast";
@@ -7,14 +7,15 @@ import { addToast } from "@heroui/toast";
 export default function FoodCard({ food }: { food: any }) {
   const [activeTab, setActiveTab] = useState("highlights");
   const navigate = useNavigate();
-  const { populateFoodForm, setIsUpdating, setCurrentFoodId } = useFoodStore();
+  const { populateFoodForm, setIsUpdating, setCurrentFoodId, foodList, setFoodList } = useFoodStore();
   const { user } = useUserStore();
+  const { user_id } = useParams();
 
   const handleEdit = () => {
     populateFoodForm(food);
     setCurrentFoodId(food.id);
     setIsUpdating(true);
-    navigate(`/${food.overview_id}/new-food`);
+    navigate(`/${user_id}/${food.overview_id}/new-food`);
   };
 
   const handleDelete = async (food_id: string) => {
@@ -24,6 +25,8 @@ export default function FoodCard({ food }: { food: any }) {
     if(res.error) {
       addToast({title: "Couldn't delete food!", color: "danger"})
     }else {
+      const updated_food_list = foodList.filter((item => item.id !== food_id))
+      setFoodList(updated_food_list)
       addToast({title: "Food deleted successfully.", color: "success"})
     }
   }
@@ -81,12 +84,12 @@ export default function FoodCard({ food }: { food: any }) {
                 </svg>
                 <h4>{food.price} {food.currency_code || "NGN"}</h4>
             </div>
-            <div className="flex gap-2 items-center text-sm">
+            <button disabled={food.booking_link.trim() == ""} className="flex gap-2 disabled:opacity-25 items-center text-sm">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M7.64334 12.3574L12.3575 7.64322M5.87501 9.41072L4.69667 10.5891C4.38714 10.8986 4.1416 11.2661 3.97408 11.6705C3.80656 12.0749 3.72034 12.5084 3.72034 12.9461C3.72034 13.3839 3.80656 13.8173 3.97408 14.2218C4.1416 14.6262 4.38714 14.9937 4.69667 15.3032C5.00621 15.6128 5.37368 15.8583 5.77811 16.0258C6.18254 16.1933 6.61601 16.2796 7.05376 16.2796C7.49151 16.2796 7.92497 16.1933 8.3294 16.0258C8.73383 15.8583 9.1013 15.6128 9.41084 15.3032L10.5875 14.1249M9.41001 5.87488L10.5883 4.69655C10.8979 4.38701 11.2653 4.14148 11.6698 3.97396C12.0742 3.80644 12.5077 3.72021 12.9454 3.72021C13.3832 3.72021 13.8166 3.80644 14.2211 3.97396C14.6255 4.14148 14.993 4.38701 15.3025 4.69655C15.612 5.00609 15.8576 5.37356 16.0251 5.77799C16.1926 6.18242 16.2788 6.61588 16.2788 7.05363C16.2788 7.49139 16.1926 7.92485 16.0251 8.32928C15.8576 8.73371 15.612 9.10118 15.3025 9.41072L14.1242 10.5891" stroke="#E03E1A" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <h4>Book</h4>
-            </div>
+            </button>
             <div className="flex gap-2 items-center text-sm">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M8.92 3.60403C9.03004 3.41519 9.18768 3.25851 9.37718 3.14961C9.56669 3.04071 9.78143 2.9834 10 2.9834C10.2186 2.9834 10.4333 3.04071 10.6228 3.14961C10.8123 3.25851 10.97 3.41519 11.08 3.60403L12.595 6.20403C12.6822 6.3541 12.7997 6.48435 12.94 6.5865C13.0803 6.68866 13.2404 6.76047 13.41 6.79737L16.3517 7.43403C16.5652 7.48046 16.7628 7.58204 16.9248 7.72866C17.0868 7.87527 17.2076 8.06179 17.275 8.26963C17.3425 8.47746 17.3543 8.69934 17.3092 8.91316C17.2642 9.12697 17.1639 9.32524 17.0183 9.4882L15.0142 11.7324C14.8986 11.8617 14.8111 12.0137 14.7575 12.1787C14.7038 12.3437 14.6851 12.5181 14.7025 12.6907L15.005 15.6849C15.027 15.9024 14.9917 16.1218 14.9024 16.3214C14.8131 16.5209 14.6731 16.6936 14.4962 16.8221C14.3194 16.9506 14.1119 17.0305 13.8946 17.0538C13.6772 17.0771 13.4576 17.043 13.2575 16.9549L10.5042 15.7415C10.3453 15.6715 10.1736 15.6353 10 15.6353C9.82639 15.6353 9.65469 15.6715 9.49583 15.7415L6.7425 16.9549C6.54244 17.043 6.32277 17.0771 6.1054 17.0538C5.88804 17.0305 5.68059 16.9506 5.50375 16.8221C5.32692 16.6936 5.18687 16.5209 5.0976 16.3214C5.00833 16.1218 4.97295 15.9024 4.995 15.6849L5.2975 12.6907C5.31501 12.5181 5.29642 12.3438 5.2429 12.1788C5.18939 12.0138 5.10213 11.8618 4.98666 11.7324L2.98166 9.4882C2.8361 9.32524 2.7358 9.12697 2.69076 8.91316C2.64572 8.69934 2.65751 8.47746 2.72497 8.26963C2.79242 8.06179 2.91317 7.87527 3.07518 7.72866C3.2372 7.58204 3.43481 7.48046 3.64833 7.43403L6.59 6.79737C6.75967 6.76067 6.91984 6.68904 7.0603 6.58702C7.20077 6.48501 7.31844 6.35486 7.40583 6.20487L8.92 3.60403Z" stroke="#E03E1A" stroke-opacity="0.85" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>

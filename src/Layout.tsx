@@ -3,14 +3,24 @@ import Navbar from "./components/navbar";
 import { useEffect } from "react";
 import { supabase } from "./utils/supabase";
 import { useUserStore } from "./utils/store/app_store";
+import { useNavigate } from "react-router-dom";
+
 
 const Layout = () => {
   const { user, setUser } = useUserStore();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user as any ?? null);
+        const storedUrl = localStorage.getItem("kits_by_odyss_current_url");
+
+        if (storedUrl) {
+          localStorage.removeItem("kits_by_odyss_current_url");
+          navigate(storedUrl);
+        }
+
       }
     );
 

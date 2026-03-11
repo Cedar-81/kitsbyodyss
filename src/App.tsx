@@ -14,7 +14,7 @@ import { useEffect } from 'react'
 import { supabase } from './utils/supabase'
 import Profile from './pages/profile'
 import NewKit from './pages/new_kit'
-import ProfileLayout from './ProfileLayout'
+import Home from './pages/home'
 
 
 function App() {
@@ -30,12 +30,17 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/profile/:id' element={<ProfileLayout />} >
-          <Route index element={<Profile />} />
-          <Route path='new-kit' element={<NewKit />} />
-        </Route>
         <Route path='/' element={<Layout />}>
-          <Route path=':id/' element={<Overview />} />
+          <Route index element={<Home />} />
+
+          <Route path=':user_id'>
+            <Route path='profile' element={<Profile />} />
+            <Route path='new-kit' element={<NewKit />} />
+          </Route>
+        </Route>
+          
+        <Route path='/:user_id' element={<Layout />}>
+          <Route path=':id/overview' element={<Overview />} />
           <Route path=':id/transportation' element={<Transportation />} />
           <Route path=':id/food' element={<Food />} />
           <Route path=':id/activities' element={<Activities />} />
@@ -45,6 +50,7 @@ function App() {
           <Route path=':id/new-activity' element={<NewActivity />} />
           <Route path=':id/new-transportation' element={<NewTransportation />} />
         </Route>
+
       </Routes>
     </BrowserRouter>
   )

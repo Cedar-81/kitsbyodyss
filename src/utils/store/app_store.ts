@@ -102,6 +102,7 @@ export interface Profile {
   username: string,
   display_name: string,
   user_id?: string,
+  purchased_kits?: string[],
   [key: string]: any;
 }
 
