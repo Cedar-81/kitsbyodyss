@@ -14,7 +14,7 @@ import {
 } from "@heroui/react";
 import { handleGoogleLogin, handleGoogleLogout, UserAPI } from "../utils/api";
 import UserInfo from "./user_info";
-import { useProfileStore } from "../utils/store/app_store";
+import { useProfileStore, useUserStore } from "../utils/store/app_store";
 import KitsLogo from "./kits_logo";
 
 type NavTab = {
@@ -28,6 +28,7 @@ export default function Navbar({ user }: { user: any }) {
     const location = useLocation();
     const navigate = useNavigate();
     const { profile, setProfile, populateProfileForm, setCurrentProfileId, setIsUpdating } = useProfileStore();
+    const { showLogin, setShowLogin } = useUserStore()
 
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -114,17 +115,30 @@ export default function Navbar({ user }: { user: any }) {
         };
 
     generateUser();
-}, [user]);
+    }, [user]);
+
+
+    const not_home = location.pathname !== "" && location.pathname !== "/"
+
+    useEffect(() => {
+        if(not_home && !user) {
+            setShowLogin(true)
+        }
+    }, [user])
 
 
     return (
-        <nav>
+        <nav className="h-20 relative">
             {/* Sign-in gate */}
-            {!user && (
-                <div className="fixed top-0 right-0 h-screen flex items-center justify-center p-8 w-full bg-black/70 z-50">
+            {showLogin && (
+                <div onClick={() => {
+                    if(not_home) return
+                    setShowLogin(false)
+                }} className="fixed top-0 right-0 h-screen flex items-center justify-center p-8 w-full bg-black/70 z-50">
                     <div className="w-full p-6 md:w-100 rounded-2xl bg-white space-y-5 border border-brand/70">
                         <h1 className="text-xl font-semibold">Please sign in to continue</h1>
-                        <Button onPress={() => handleGoogleLogin(location.pathname)} variant="bordered" className="w-full border-brand text-brand">
+                        <Button onPress={() => {   
+                            handleGoogleLogin(location.pathname)}} variant="bordered" className="w-full border-brand text-brand">
                             Continue with Google
                         </Button>
                     </div>
@@ -139,12 +153,12 @@ export default function Navbar({ user }: { user: any }) {
             </Modal>
 
             {/* Top bar */}
-            <div className="flex justify-between items-center w-full border-b border-black/20 py-2 px-5 md:px-10">
+            <div className="flex justify-between items-center w-full border-b navbar border-black/20 h-20 z-40 fixed backdrop-blur-3xl top-0 right-0 px-5 md:px-10">
                 <Link to={"/"}> <KitsLogo /> </Link>
 
                 <div> 
                     {!user ? (
-                        <Button onPress={() => handleGoogleLogin(location.pathname)} variant="bordered" className="border-brand text-brand">
+                        <Button onPress={() => handleGoogleLogin(location.pathname)} variant="bordered" className="border-brand login-btn text-brand">
                             Continue with Google
                         </Button>
                     ) : (

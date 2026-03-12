@@ -127,12 +127,16 @@ export const useGeneralStore = create<GeneralStore>(() => ({
 // -------- User Store --------
 export interface UserStore {
   user: User | null;
+  showLogin: boolean;
+  setShowLogin: ((value: boolean) => void)
   setUser: (user: User | null) => void;
   clearUser: () => void;
 }
 
 export const useUserStore = create<UserStore>((set) => ({
   user: null,
+  showLogin: false,
+  setShowLogin: (value) => set({ showLogin: value}),
   setUser: (user) => set({ user }),
   clearUser: () => set({ user: null }),
 }));
