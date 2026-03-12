@@ -11,6 +11,7 @@ import { useUserStore } from "../utils/store/app_store"
 import { useNavigate } from "react-router-dom"
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
+ScrollTrigger.config({ ignoreMobileResize: true })
 
 export default function Home() {
     const bannerSectionRef = useRef(null);
