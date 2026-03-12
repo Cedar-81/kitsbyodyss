@@ -97,13 +97,13 @@ export default function Home() {
   });
 
   useGSAP(() => {
-    // 1. Header Entrance
+
     gsap.from(".curate-title, .curate-subtitle", {
       scrollTrigger: {
         trigger: ".curate-title",
-        start: "top 90%",
-        // play (on enter), reverse (on leave back), play (on enter back), reverse (on leave)
-        toggleActions: "play reverse play reverse", 
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+        invalidateOnRefresh: true
       },
       y: 30,
       opacity: 0,
@@ -112,7 +112,6 @@ export default function Home() {
       ease: "power2.out",
     });
 
-    // 2. Grid Items Loop
     const gridItems = gsap.utils.toArray(".curate-grid-item");
 
     gridItems.forEach((item: any) => {
@@ -122,9 +121,9 @@ export default function Home() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: item,
-          start: "top 85%",
-          // This ensures the toast pops back down when you scroll up past it
-          toggleActions: "play reverse play reverse",
+          start: "top 80%",
+          toggleActions: "play none none reverse",
+          invalidateOnRefresh: true
         }
       });
 
@@ -135,14 +134,16 @@ export default function Home() {
         ease: "power2.out"
       })
       .from(img, {
-        y: 350,           // Increased distance for a more dramatic pop
-        scale: 0.5,       // Starts smaller
+        y: 350,
+        scale: 0.5,
         opacity: 0,
-        duration: 0.4,    // Faster duration for "abrupt" feel
-        // "circ.out" is very snappy/mechanical like a toaster spring
-        ease: "circ.out", 
+        duration: 0.4,
+        ease: "circ.out"
       }, "-=0.2");
     });
+
+    ScrollTrigger.refresh();
+
   }, { scope: curateSectionRef });
 
 
