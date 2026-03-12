@@ -49,7 +49,8 @@ export default function Home() {
       });
 
       tl.to(".floaters", {
-        y: "-20%",
+        y: (i) => (i % 2 === 0 ? -60 : 60),
+        rotation: (i) => (i % 2 === 0 ? 15 : -15),
         ease: "power2.inOut"
       })
       .to(".banner-img", {
@@ -148,12 +149,14 @@ export default function Home() {
 
 
   useGSAP(() => {
+
     // 1. Text & Button Entrance
     const textTL = gsap.timeline({
       scrollTrigger: {
         trigger: ".start-title",
-        start: "top 90%",
-        toggleActions: "play reverse play reverse",
+        start: "top 80%",
+        toggleActions: "play none none reverse",
+        invalidateOnRefresh: true
       }
     });
 
@@ -169,24 +172,28 @@ export default function Home() {
         opacity: 0,
         duration: 0.6,
         ease: "power2.out",
-      }, "-=0.4"); // Overlap for smoothness
+      }, "-=0.4");
+
 
     // 2. Floater SVGs Animation
-    // We use a separate trigger for the floaters to make them feel "weightless"
     gsap.from(".start-floater", {
       scrollTrigger: {
         trigger: startTripSectionRef.current,
-        start: "top 80%",
+        start: "top 75%",
         end: "bottom top",
-        scrub: 1.5, // High scrub value makes them feel like they are floating in water
+        scrub: 1.5,
+        invalidateOnRefresh: true
       },
-      y: (i) => (i % 2 === 0 ? -60 : 60), // Alternates direction for variety
+      y: (i) => (i % 2 === 0 ? -60 : 60),
       rotation: (i) => (i % 2 === 0 ? 15 : -15),
       opacity: 0,
       duration: 2,
       stagger: 0.1,
       ease: "sine.inOut",
     });
+
+    ScrollTrigger.refresh();
+
   }, { scope: startTripSectionRef });
 
 
