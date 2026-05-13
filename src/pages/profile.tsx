@@ -142,7 +142,7 @@ export default function Profile() {
           </Link>
         </div>
 
-        {overviewList.length !== 0 ? <div className="grid grid-cols-2 md:grid-cols-5 w-full justify-between gap-4">
+        {overviewList.length !== 0 ? <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 cursor-pointer w-full justify-between gap-4">
             {overviewList.map((overview) => (
                 <div onClick={() => navigate(`/${overview.user_id}/${overview.id}/overview`)} key={overview.id} className="space-y-2 relative w-full"> 
                     <div className="h-40 md:h-72 w-full bg-brand/10 rounded-lg relative shadow-lg">

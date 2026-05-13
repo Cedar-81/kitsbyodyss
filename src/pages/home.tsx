@@ -12,6 +12,8 @@ import { useNavigate } from "react-router-dom"
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 ScrollTrigger.config({ ignoreMobileResize: true })
+ScrollTrigger.normalizeScroll(true); // Normalize scroll behavior across browsers
+// gsap.set("debug", true); // Uncomment for GSAP debug logs
 
 export default function Home() {
     const bannerSectionRef = useRef(null);
@@ -42,9 +44,10 @@ export default function Home() {
           trigger: bannerSectionRef.current,
           start: "top 10%", 
           end: "+=1200", 
-          scrub: 1,
+          scrub: 0.5, // Reduced scrub for smoother performance
           pin: true,
           anticipatePin: 1,
+          // markers: true, // Uncomment for debugging
         },      
       });
 
@@ -181,7 +184,7 @@ export default function Home() {
         trigger: startTripSectionRef.current,
         start: "top 75%",
         end: "bottom top",
-        scrub: 1.5,
+        scrub: 1, // Reduced from 1.5 for better performance
         invalidateOnRefresh: true
       },
       y: (i) => (i % 2 === 0 ? -60 : 60),
