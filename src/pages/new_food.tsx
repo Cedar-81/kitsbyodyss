@@ -1,17 +1,20 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ImageSelector from "../components/img_selector";
 import Input from "../components/input";
 import NoteInput from "../components/note_input";
 import { currencyCodes } from "../utils/helpers";
 import { useParams, useNavigate } from "react-router-dom";
-import { FoodAPI, uploadImage } from "../utils/api";
+import { FoodAPI, OverviewAPI, uploadImage } from "../utils/api";
 import { supabase } from "../utils/supabase";
-import { useFoodStore } from "../utils/store/app_store";
+import { useFoodStore, useProfileStore } from "../utils/store/app_store";
 import { addToast } from "@heroui/toast";
 
 export default function NewFood() {
   const { id, user_id } = useParams();
   const navigate = useNavigate();
+  const { profile } = useProfileStore();
+  const [authorized, setAuthorized] = useState(false);
+  const [_loading, setLoading] = useState(true);
 
   const { 
     foodFormData,
@@ -24,14 +27,38 @@ export default function NewFood() {
     setIsUpdating,
     setCurrentFoodId,
   } = useFoodStore();
-  console.log("foodFormData", foodFormData, isUpdating, currentFoodId);
+
+  // Check authorization before allowing access to this page
+  useEffect(() => {
+    async function checkAuth() {
+      if (!id) return;
+      try {
+        const res = await OverviewAPI.getById(id);
+        if (res.data) {
+          // Only the kit owner can create items
+          const isOwner = res.data.user_id === profile?.user_id;
+          setAuthorized(isOwner);
+          if (!isOwner) {
+            addToast({ title: "You don't have permission to add items to this kit", color: "danger" });
+            // Redirect to the kit's food page
+            navigate(`/${user_id}/${id}/food`);
+          }
+        }
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        navigate(`/${user_id}/${id}/food`);
+      }
+    }
+    checkAuth();
+  }, [id, profile?.user_id, user_id, navigate]);
 
   // reset form only when entering create mode (not editing)
   useEffect(() => {
-    if (!isUpdating) {
+    if (!isUpdating && authorized) {
       resetFoodForm();
     }
-  }, [id, isUpdating]);
+  }, [id, isUpdating, authorized]);
 
   const handleSubmit = async () => {
     const user = (await supabase.auth.getUser()).data.user;
@@ -92,7 +119,7 @@ export default function NewFood() {
         <h1 className="font-medium text-lg pt-8 pb-2">
           {isUpdating ? "Edit Food Place" : "Add New Food Place"}
         </h1>
-        <ImageSelector onChange={(img) => updateFoodFormField('image', img)} onChangeFile={(f) => updateFoodFormField('imageFile', f)} />
+        <ImageSelector value={foodFormData.image} onChange={(img) => updateFoodFormField('image', img)} onChangeFile={(f) => updateFoodFormField('imageFile', f)} />
         <Input placeholder="e.g Rive Park Resturant" title="Name" titled value={foodFormData.name} onChangeInput={(e) => updateFoodFormField('name', e.target.value)} />
         <Input placeholder="Location" title="Location" titled value={foodFormData.location} onChangeInput={(e) => updateFoodFormField('location', e.target.value)} />
         <Input placeholder="e.g https://booking.com/..." title="Booking Link" titled value={foodFormData.booking_link} onChangeInput={(e) => updateFoodFormField('booking_link', e.target.value)} />

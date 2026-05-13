@@ -1,24 +1,52 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ImageSelector from '../components/img_selector'
 import Input from '../components/input'
 import NoteInput from '../components/note_input'
 import { currencyCodes } from '../utils/helpers'
 import { useParams, useNavigate } from 'react-router-dom'
-import { AccommodationAPI, uploadImage } from '../utils/api'
+import { AccommodationAPI, OverviewAPI, uploadImage } from '../utils/api'
 import { supabase } from '../utils/supabase'
-import { useAccommodationStore } from '../utils/store/app_store'
+import { useAccommodationStore, useProfileStore } from '../utils/store/app_store'
 import { addToast } from '@heroui/toast'
 
 export default function NewAccommodation() {
   const { id, user_id } = useParams();
   const navigate = useNavigate();
+  const { profile } = useProfileStore();
+  const [authorized, setAuthorized] = useState(false);
+  const [_loading, setLoading] = useState(true);
 
   const { accommodationFormData, accommodationLoading, updateAccommodationFormField, resetAccommodationForm, setAccommodationLoading, isUpdating, currentAccommodationId, setIsUpdating, setCurrentAccommodationId } = useAccommodationStore();
 
+  // Check authorization before allowing access to this page
+  useEffect(() => {
+    async function checkAuth() {
+      if (!id) return;
+      try {
+        const res = await OverviewAPI.getById(id);
+        if (res.data) {
+          // Only the kit owner can create items
+          const isOwner = res.data.user_id === profile?.user_id;
+          setAuthorized(isOwner);
+          if (!isOwner) {
+            addToast({ title: "You don't have permission to add items to this kit", color: "danger" });
+            // Redirect to the kit's accommodation page
+            navigate(`/${user_id}/${id}/accommodation`);
+          }
+        }
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        navigate(`/${user_id}/${id}/accommodation`);
+      }
+    }
+    checkAuth();
+  }, [id, profile?.user_id, user_id, navigate]);
+
   // reset form when switching to create mode
   useEffect(() => {
-    if (!isUpdating) resetAccommodationForm();
-  }, [isUpdating, id]);
+    if (!isUpdating && authorized) resetAccommodationForm();
+  }, [isUpdating, id, authorized]);
 
 
   const handleSubmit = async () => {
@@ -76,7 +104,7 @@ export default function NewAccommodation() {
   return (
     <div className="px-5 space-y-4">
         <h1 className="font-medium text-lg pt-8 pb-2">{isUpdating ? 'Edit Accommodation' : 'Add New Accommodation'}</h1>
-        <ImageSelector onChange={(img) => updateAccommodationFormField('image', img)} onChangeFile={(f) => updateAccommodationFormField('imageFile', f)} />
+        <ImageSelector value={accommodationFormData.image} onChange={(img) => updateAccommodationFormField('image', img)} onChangeFile={(f) => updateAccommodationFormField('imageFile', f)} />
         <Input placeholder="e.g Chevron Restaurant" title="Name" titled value={accommodationFormData.name} onChangeInput={(e) => updateAccommodationFormField('name', e.target.value)} />
         <Input placeholder="e.g Cheveron Garage, Lagos" title="Location" titled value={accommodationFormData.location} onChangeInput={(e) => updateAccommodationFormField('location', e.target.value)} />
         <Input placeholder="e.g Near Chevron Garage" title="Landmark" titled value={accommodationFormData.landmark} onChangeInput={(e) => updateAccommodationFormField('landmark', e.target.value)} />

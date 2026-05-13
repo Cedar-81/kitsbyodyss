@@ -196,12 +196,12 @@ export default function Home() {
 
   }, { scope: startTripSectionRef });
 
-
+ 
 
 
   return(
     <div className="w-full space-y-40">
-      <section ref={bannerSectionRef} className="h-[calc(100vh-5rem)] px-8 w-full flex flex-col overflow-hidden justify-center items-center relative">
+      <section ref={bannerSectionRef} className="h-[calc(100vh-4rem)] px-8 w-full flex flex-col overflow-hidden justify-center items-center relative">
         
         <div className="lg:w-200 relative">
           <svg width="100" className="floaters absolute size-10 lg:size-20 z-30 -top-18 lg:-top-14 shadow-2xl rounded-2xl overflow-clip right-10" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">

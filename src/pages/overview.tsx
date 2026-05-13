@@ -1,15 +1,16 @@
-import { Link, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { OverviewAPI, UserAPI } from "../utils/api";
+import { OverviewAPI } from "../utils/api";
 import {  useOverviewStore, useProfileStore, useUserStore } from "../utils/store/app_store";
 import { addToast } from "@heroui/toast";
 
 export default function Overview() {
   const { id, user_id } = useParams();
+  const navigate = useNavigate();
   const { overview, setOverview } = useOverviewStore();
   const [isPublished, setIsPublished] = useState(false);
   const { user } = useUserStore();
-  const { profile, setProfile } = useProfileStore()
+  const { profile } = useProfileStore()
   console.log("overview from store: ", overview, " published: ", isPublished, "profile: ", profile);
 
   useEffect(() => {
@@ -21,9 +22,19 @@ export default function Overview() {
     if (id) {
       try {
         const res = await OverviewAPI.getById(id);
-        setOverview(res.data);
-        setIsPublished(res.data.published)
-        console.log("overview", res);
+        if (res.data) {
+          const kitOwnerId = res.data.user_id;
+          const isOwner = profile?.user_id === kitOwnerId;
+
+          if (user_id !== kitOwnerId && (res.data.published || isOwner)) {
+            navigate(`/${kitOwnerId}/${id}/overview`, { replace: true });
+            return;
+          }
+
+          setOverview(res.data);
+          setIsPublished(res.data.published);
+          console.log("overview", res);
+        }
       } catch (err) {
         setOverview(null)
         console.error("Failed to fetch overview", err);
@@ -74,20 +85,20 @@ export default function Overview() {
     }
   };
 
-  const handlePurchase = async () => {
-    if(profile?.user_id && id) {
-      addToast({title: "Handling Kit purchase...", color: "primary"})
-      const res = await UserAPI.addPurchasedKitUnique(profile.user_id, id)
+  // const handlePurchase = async () => {
+  //   if(profile?.user_id && id) {
+  //     addToast({title: "Handling Kit purchase...", color: "primary"})
+  //     const res = await UserAPI.addPurchasedKitUnique(profile.user_id, id)
 
-      if(res.error) {
-        console.error(res.error)
-        addToast({title: "Couldn't save purchase!", description: "Please reach out to use with your purchase reference number to recitfy issue.", color: "danger" })
-      } else {
-        addToast({title: "Kit purchase saved successfully.", color: "success"})
-        setProfile(res.data)
-      }
-    }
-  }
+  //     if(res.error) {
+  //       console.error(res.error)
+  //       addToast({title: "Couldn't save purchase!", description: "Please reach out to use with your purchase reference number to recitfy issue.", color: "danger" })
+  //     } else {
+  //       addToast({title: "Kit purchase saved successfully.", color: "success"})
+  //       setProfile(res.data)
+  //     }
+  //   }
+  // }
 
   let is_kit_published = false
 
@@ -192,13 +203,14 @@ export default function Overview() {
               </button>}
           </div>
         </div>
-        { (((overview.user_id == user?.id)) || !can_view_kit) && <div className="p-3 px-4 rounded-xl md:mt-8 flex items-center md:w-1/2 justify-between bg-gray-100 w-full border-1 border-brand">
+        {/* Handle Access Price */}
+        {/* { (((overview.user_id == user?.id)) || !can_view_kit) && <div className="p-3 px-4 rounded-xl md:mt-8 flex items-center md:w-1/2 justify-between bg-gray-100 w-full border-1 border-brand">
           <div>
             <h2 className="font-semibold text-sm">Access Price</h2>
             <p><span className="font-medium">{overview.price_currency_code}</span> {overview.price?.toString() || ''}</p>
           </div>
           <button onClick={handlePurchase} className={`h-8 text-sm px-8 rounded-full ${user?.id == overview.user_id ? "bg-brand/50 text-white/50" : "bg-brand text-white"}`} disabled={user?.id == overview.user_id}>Purchase</button>
-        </div>}
+        </div>} */}
         <div className="space-y-3 pt-3 md:w-1/2">
           <h2 className="font-medium text-lg">Overview</h2>
           <p className="text-gray-500">

@@ -78,6 +78,23 @@ export interface ActivityItem {
 export interface TransportationItem {
   id?: string;
   overview_id: string;
+  company: string;
+  landmark: string;
+  from_city: string;
+  to_city: string;
+  from_state: string;
+  to_state: string;
+  from_country: string;
+  to_country: string;
+  mode: string;
+  booking_link?: string;
+  price?: string;
+  currency_code: string;
+  duration?: string;
+  duration_time?: string;
+  review?: string;
+  notes: string[];
+  user_id?: string;
   [key: string]: any;
 }
 
@@ -92,6 +109,8 @@ export interface KitItem {
   description?: string;
   budget_currency_code?: string;
   access_currency_code?: string;
+  main_image?: string;
+  image?: string;
   images?: string[];
   user_id?: string;
   [key: string]: any;
@@ -261,7 +280,7 @@ export interface FoodStore {
   populateFoodForm: (item: FoodItem) => void;
 }
 
-const defaultFoodFormData = {
+const defaultFoodFormData =  {
   name: '',
   location: '',
   landmark: '',
@@ -312,6 +331,114 @@ export const useFoodStore = create<FoodStore>((set) => ({
         review: item.review || '',
         image: item.image || null,
         imageFile: null,
+      },
+    }),
+}));
+
+// -------- Transportation Store --------
+export interface TransportationStore {
+  transportationList: TransportationItem[];
+  transportationLoading: boolean;
+  // form state used by new_transportation page
+  transportationFormData: {
+    company: string;
+    location: string; //company location
+    from_city: string;
+    to_city: string;
+    landmark: string;
+    from_state: string;
+    to_state: string;
+    from_country: string;
+    to_country: string;
+    mode: string;
+    booking_link?: string;
+    price?: string;
+    currency_code: string;
+    duration?: string; // e.g. "/day", "/trip"
+    duration_time?: string;
+    rating: string | null;
+    review?: string;
+    notes: string[];
+  };
+
+  // whether the form is currently editing an existing item
+  isUpdating: boolean;
+  currentTransportationId: string | null;
+  setTransportationList: (items: TransportationItem[]) => void;
+  setTransportationLoading: (loading: boolean) => void;
+  updateTransportationFormField: (field: string, value: any) => void;
+  resetTransportationForm: () => void;
+  addTransportationItem: (item: TransportationItem) => void;
+  // helpers for update flow
+  setIsUpdating: (updating: boolean) => void;
+  setCurrentTransportationId: (id: string | null) => void;
+  populateTransportationForm: (item: TransportationItem) => void;
+}
+
+const defaultTransportationFormData = {
+  from_city: "",
+  to_city: "",
+  from_state: "",
+  to_state: "",
+  from_country: "",
+  to_country: "",
+  mode: "",
+  booking_link: "",
+  duration: "",
+  duration_time: "hrs",
+  company: '',
+  location: '',
+  landmark: '',
+  price: '',
+  currency_code: 'USD',
+  rating: null,
+  notes: [],
+  review: '',
+};
+
+export const useTransportationStore = create<TransportationStore>((set) => ({
+  transportationList: [],
+  transportationLoading: false,
+  transportationFormData: defaultTransportationFormData,
+  isUpdating: false,
+  currentTransportationId: null,
+  setTransportationList: (transportationList) => set({ transportationList }),
+  setTransportationLoading: (transportationLoading) => set({ transportationLoading }),
+  updateTransportationFormField: (field, value) =>
+    set((state) => ({
+      transportationFormData: {
+        ...state.transportationFormData,
+        [field]: value,
+      },
+    })),
+  resetTransportationForm: () =>
+    set({ transportationFormData: defaultTransportationFormData, isUpdating: false, currentTransportationId: null }),
+  addTransportationItem: (item: TransportationItem) =>
+    set((state) => ({
+      transportationList: [...state.transportationList, item],
+    })),
+  setIsUpdating: (updating) => set({ isUpdating: updating }),
+  setCurrentTransportationId: (id) => set({ currentTransportationId: id }),
+  populateTransportationForm: (item) =>
+    set({
+      transportationFormData: {
+        company: item.company || '',
+        location: item.location || '',
+        landmark: item.landmark || '',
+        booking_link: item.booking_link || '',
+        price: item.price != null ? String(item.price) : '',
+        currency_code: item.currency_code || 'USD',
+        notes: item.notes || [],
+        review: item.review || '',
+        rating: (item as any).rating || null,
+        duration: (item as any).duration || '',
+        from_city: item.from_city || '',
+        to_city: item.to_city || '',
+        from_state: item.from_state || '',
+        to_state: item.to_state || '',
+        from_country: item.from_country || '',
+        to_country: item.to_country || '',
+        mode: item.mode || ''
       },
     }),
 }));
@@ -490,26 +617,6 @@ export const useActivityStore = create<ActivityStore>((set) => ({
     }),
 }));
 
-// -------- Transportation Store --------
-export interface TransportationStore {
-  transportationList: TransportationItem[];
-  transportationLoading: boolean;
-  setTransportationList: (items: TransportationItem[]) => void;
-  setTransportationLoading: (loading: boolean) => void;
-  addTransportationItem: (item: TransportationItem) => void;
-}
-
-export const useTransportationStore = create<TransportationStore>((set) => ({
-  transportationList: [],
-  transportationLoading: false,
-  setTransportationList: (transportationList) => set({ transportationList }),
-  setTransportationLoading: (transportationLoading) => set({ transportationLoading }),
-  addTransportationItem: (item: TransportationItem) =>
-    set((state) => ({
-      transportationList: [...state.transportationList, item],
-    })),
-}));
-
 // -------- Kit Store --------
 export interface KitStore {
   kitFormData: {
@@ -522,13 +629,13 @@ export interface KitStore {
     description: string;
     budget_currency_code: string;
     access_currency_code: string;
-    images: string[];
-    imageFiles: (File | null)[];
+    image: string;
+    imageFile: File | null;
   };
   kitLoading: boolean;
   updateKitFormField: (field: string, value: any) => void;
-  updateKitImages: (index: number, image: string) => void;
-  updateKitImageFiles: (index: number, file: File | null) => void;
+  updateKitImage: (image: string) => void;
+  updateKitImageFile: (file: File | null) => void;
   resetKitForm: () => void;
   setKitLoading: (loading: boolean) => void;
   // whether the form is currently editing an existing item
@@ -550,8 +657,8 @@ const defaultKitFormData = {
   description: '',
   budget_currency_code: 'USD',
   access_currency_code: 'USD',
-  images: ['', '', '', ''],
-  imageFiles: [null, null, null, null],
+  image: '',
+  imageFile: null,
 };
 
 export const useKitStore = create<KitStore>((set) => ({
@@ -566,28 +673,20 @@ export const useKitStore = create<KitStore>((set) => ({
         [field]: value,
       },
     })),
-  updateKitImages: (index, image) =>
-    set((state) => {
-      const newImages = [...state.kitFormData.images];
-      newImages[index] = image;
-      return {
-        kitFormData: {
-          ...state.kitFormData,
-          images: newImages,
-        },
-      };
-    }),
-  updateKitImageFiles: (index, file) =>
-    set((state) => {
-      const newImageFiles = [...state.kitFormData.imageFiles];
-      newImageFiles[index] = file;
-      return {
-        kitFormData: {
-          ...state.kitFormData,
-          imageFiles: newImageFiles,
-        },
-      };
-    }),
+  updateKitImage: (image) =>
+    set((state) => ({
+      kitFormData: {
+        ...state.kitFormData,
+        image,
+      },
+    })),
+  updateKitImageFile: (file) =>
+    set((state) => ({
+      kitFormData: {
+        ...state.kitFormData,
+        imageFile: file,
+      },
+    })),
   resetKitForm: () => set({ kitFormData: defaultKitFormData }),
   setKitLoading: (kitLoading) => set({ kitLoading }),
   setIsUpdating: (updating) => set({ isUpdating: updating }),
@@ -604,8 +703,8 @@ export const useKitStore = create<KitStore>((set) => ({
         description: item.description || '',
         budget_currency_code: item.budget_currency_code || 'USD',
         access_currency_code: item.access_currency_code || 'USD',
-        images: item.images || ['', '', '', ''],
-        imageFiles: item.imageFiles || [null, null, null, null],
+        image: item.main_image || item.image || (item.images?.[0] ?? ''),
+        imageFile: null,
       },
     }),
   

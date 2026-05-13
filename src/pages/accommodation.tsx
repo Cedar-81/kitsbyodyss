@@ -1,21 +1,59 @@
 import { useNavigate, useParams } from "react-router-dom";
 import AccommodationCard from "../components/accommodation_card";
 import { useEffect, useState } from "react";
-import { AccommodationAPI } from "../utils/api";
+import { AccommodationAPI, OverviewAPI } from "../utils/api";
 import { addToast } from "@heroui/toast";
-import { useFoodStore, useProfileStore } from "../utils/store/app_store";
+import { useAccommodationStore, useProfileStore } from "../utils/store/app_store";
 
 export default function Accommodation() {
     const { id, user_id } = useParams();
     const [loading, setLoading] = useState(true);
+    const [authorized, setAuthorized] = useState(false);
     const navigate = useNavigate();
-    const { setIsUpdating, setCurrentFoodId } = useFoodStore();
+    const { setIsUpdating, setCurrentAccommodationId } = useAccommodationStore();
     const { profile } = useProfileStore()
     const [accommodationList, setAccommodationList] = useState<any[]>([]);
 
+    // Owner of the overview (kit)
+    const [overviewOwnerId, setOverviewOwnerId] = useState<string | null>(null);
+    const [_isKitPublished, setIsKitPublished] = useState(false);
+
+    // Fetch overview owner and check authorization
     useEffect(() => {
+        async function fetchOverviewOwner() {
+            if (!id) return;
+            const res = await OverviewAPI.getById(id);
+            if (res.data) {
+                const kitOwnerId = res.data.user_id;
+                const kitPublished = res.data.published;
+                setOverviewOwnerId(kitOwnerId);
+                setIsKitPublished(kitPublished);
+
+                const isOwner = profile?.user_id === kitOwnerId;
+                const routeMatchesOwner = user_id === kitOwnerId;
+                const canView = kitPublished || isOwner;
+
+                if (!routeMatchesOwner) {
+                    if (canView) {
+                        navigate(`/${kitOwnerId}/${id}/accommodation`, { replace: true });
+                        return;
+                    }
+                    setAuthorized(false);
+                    setLoading(false);
+                    return;
+                }
+
+                setAuthorized(canView);
+                setLoading(false);
+            }
+        }
+        fetchOverviewOwner();
+    }, [id, profile?.user_id, user_id, navigate]);
+
+    useEffect(() => {
+        if (!authorized) return; // Don't fetch if not authorized
         setLoading(true);
-        //fetch activities list for this overview
+        //fetch accommodation list for this overview
         const fetchAccommodations = async () => {
             try {
                 const res = await AccommodationAPI.getByOverview(id!);
@@ -23,17 +61,17 @@ export default function Accommodation() {
                 setLoading(false);
                 console.log("accommodations: ", res);
             } catch (err) {
-                addToast({title: "Failed to fetch accommodations!", color: "danger" });
+                addToast({title: "Failed to fetch accommodation items!", color: "danger" });
                 setLoading(false);
-                console.error("Failed to fetch accommodations", err);
+                console.error("Failed to fetch accommodation items", err);
             }
         };
         fetchAccommodations();
-    }, [id]);
+    }, [id, authorized]);
 
     const handleCreate = () => {
         setIsUpdating(false);
-        setCurrentFoodId(null);
+        setCurrentAccommodationId(null);
         
         //navigate to create accommodation page
         navigate(`/${user_id}/${id}/new-accommodation`);
@@ -47,11 +85,19 @@ export default function Accommodation() {
         );
     }
 
-
+    if (!authorized) {
+        return (
+            <div className="h-screen w-full flex justify-center items-center">
+                <div className="text-center space-y-2 w-[80%] mx-auto text-brand/40">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="size-20 mx-auto" width="24" height="24" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" strokeDasharray="60" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"></path><path fill="currentColor" d="M12 16c-2.59 0 -4.85 1.21 -6.06 3l6.06 2l6.06 -2c-1.21 -1.79 -3.47 -3 -6.06 -3Z" opacity="0"></path></svg>
+                    <h1 className="lg:text-lg font-semibold">You don't have access to this kit. Only the owner or users who have purchased access can view it.</h1>
+                </div>
+            </div>
+        );
+    }
     console.log("some data: ", profile?.user_id, user_id)
-    const canCreate = profile && accommodationList.length > 0 
-        ? accommodationList[0].user_id === profile.user_id // or kit.user_id
-        : false;
+
+    const canCreate = profile ? (profile.user_id === overviewOwnerId) : false;
     
   return (
     <div className="w-full p-5 md:px-12 space-y-4">
@@ -63,7 +109,7 @@ export default function Accommodation() {
             </div>
         </div>}
 
-        {accommodationList.length !== 0 ? <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {accommodationList.length !== 0 ? <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
             {accommodationList.map((accommodation) => (
                 <AccommodationCard key={accommodation.id} accommodation={accommodation} />
             ))}

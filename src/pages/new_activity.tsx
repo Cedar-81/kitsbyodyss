@@ -1,30 +1,51 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ImageSelector from '../components/img_selector'
 import Input from '../components/input'
 import NoteInput from '../components/note_input'
 import { currencyCodes } from '../utils/helpers'
 import { useParams, useNavigate } from 'react-router-dom'
-import { ActivitiesAPI, uploadImage } from '../utils/api'
+import { ActivitiesAPI, OverviewAPI, uploadImage } from '../utils/api'
 import { supabase } from '../utils/supabase'
-import { useActivityStore } from '../utils/store/app_store'
+import { useActivityStore, useProfileStore } from '../utils/store/app_store'
 import { addToast } from '@heroui/toast'
 
 export default function NewActivity() {
   const { id, user_id } = useParams();
   const navigate = useNavigate();
+  const { profile } = useProfileStore();
+  const [authorized, setAuthorized] = useState(false);
+  const [_loading, setLoading] = useState(true);
 
   const { activityFormData, activityLoading, updateActivityFormField, resetActivityForm, setActivityLoading, isUpdating, currentActivityId, setIsUpdating, setCurrentActivityId } = useActivityStore();
 
+  // Check authorization before allowing access to this page
   useEffect(() => {
-    if (!isUpdating) resetActivityForm();
-  }, [isUpdating, id]);
+    async function checkAuth() {
+      if (!id) return;
+      try {
+        const res = await OverviewAPI.getById(id);
+        if (res.data) {
+          // Only the kit owner can create items
+          const isOwner = res.data.user_id === profile?.user_id;
+          setAuthorized(isOwner);
+          if (!isOwner) {
+            addToast({ title: "You don't have permission to add items to this kit", color: "danger" });
+            // Redirect to the kit's activities page
+            navigate(`/${user_id}/${id}/activities`);
+          }
+        }
+        setLoading(false);
+      } catch (err) {
+        setLoading(false);
+        navigate(`/${user_id}/${id}/activities`);
+      }
+    }
+    checkAuth();
+  }, [id, profile?.user_id, user_id, navigate]);
 
-  // useEffect(() => () => {
-  //   setIsUpdating(false);
-  //   setCurrentActivityId(null);
-  // }, []);
-
-  console.log("activity form data: ", activityFormData, isUpdating, currentActivityId);
+  useEffect(() => {
+    if (!isUpdating && authorized) resetActivityForm();
+  }, [isUpdating, id, authorized]);
 
   const handleSubmit = async () => {
     const user = (await supabase.auth.getUser()).data.user;
@@ -79,9 +100,9 @@ export default function NewActivity() {
   };
 
   return (
-    <div className="px-5 space-y-4 w-full">
+    <div className="px-5 space-y-4 w-full lg:w-max lg:mx-auto">
         <h1 className="font-medium text-lg pt-8 pb-2">{isUpdating ? 'Edit Activity' : 'Add New Activity'}</h1>
-        <ImageSelector onChange={(img) => updateActivityFormField('image', img)} onChangeFile={(f) => updateActivityFormField('imageFile', f)} />
+        <ImageSelector value={activityFormData.image} onChange={(img) => updateActivityFormField('image', img)} onChangeFile={(f) => updateActivityFormField('imageFile', f)} />
         <Input placeholder="e.g Nestar Lakeside" title="Name" titled value={activityFormData.name} onChangeInput={(e) => updateActivityFormField('name', e.target.value)} />
         <Input placeholder="e.g Lakeside view lagos" title="Location" titled value={activityFormData.location} onChangeInput={(e) => updateActivityFormField('location', e.target.value)} />
         <Input placeholder="e.g Near Nestar Lake" title="Landmark" titled value={activityFormData.landmark} onChangeInput={(e) => updateActivityFormField('landmark', e.target.value)} />

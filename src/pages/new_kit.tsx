@@ -11,7 +11,7 @@ export default function NewKit() {
   const { user_id } = useParams();
   const navigate = useNavigate();
   
-  const { kitFormData, kitLoading, updateKitFormField, setCurrentKitId, currentKitId, updateKitImages, updateKitImageFiles, resetKitForm, setIsUpdating, isUpdating, setKitLoading } = useKitStore();
+  const { kitFormData, kitLoading, updateKitFormField, setCurrentKitId, currentKitId, updateKitImage, updateKitImageFile, resetKitForm, setIsUpdating, isUpdating, setKitLoading } = useKitStore();
 
   
 
@@ -25,16 +25,10 @@ export default function NewKit() {
     setKitLoading(true);
     console.log("description", kitFormData.description);
     try {
-      const urls: string[] = [...kitFormData.images];
-      // upload any new files
-      await Promise.all(
-        kitFormData.imageFiles.map(async (file, i) => {
-          if (file) {
-            const url = await uploadImage(file);
-            urls[i] = url;
-          }
-        })
-      );
+      let mainImage = kitFormData.image;
+      if (kitFormData.imageFile) {
+        mainImage = await uploadImage(kitFormData.imageFile);
+      }
 
       const payload: any = {
         user_id: user?.id,
@@ -47,8 +41,7 @@ export default function NewKit() {
         duration: kitFormData.trip_duration,
         duration_time_frame: kitFormData.trip_duration_time_frame,
         overview: kitFormData.description,
-        main_image: urls[0],
-        images: urls.splice(1).filter((u) => u) // remove empty strings,
+        main_image: mainImage,
       };
 
       console.log("payload", payload);
@@ -81,35 +74,29 @@ export default function NewKit() {
   };
 
   return (
-    <div className="px-5 space-y-4 w-full">
+    <div className="px-5 w-screen">
       <h1 className="font-medium text-lg pt-8 pb-2">Create New Kit</h1>
-      <div className="w-full">
-        <ImageSelector
-          onChange={(v) => updateKitImages(0, v || "")}
-          onChangeFile={(f) => updateKitImageFiles(0, f)} 
-          previewClassName="h-32"
-          className="mb-2"
-        />
-        {/* <div className="grid grid-cols-3 gap-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-min overflow-hidden">
-              <ImageSelector
-                onChange={(v) => updateKitImages(i, v || "")}
-                onChangeFile={(f) => updateKitImageFiles(i, f)}
-                previewClassName="h-32"
-                className="h-32"
-              />
-            </div>
-          ))}
-        </div> */}
+      <div className="flex space-x-8 w-full items-start">
+        <div className="w-full flex-1 sticky top-0 self-start">
+          <ImageSelector
+            value={kitFormData.image}
+            onChange={(v) => updateKitImage(v || "")}
+            onChangeFile={(f) => updateKitImageFile(f)}
+            containerClassName="w-full"
+            previewClassName="h-[calc(100vh-2rem)]"
+            className="mb-2"
+          />
+        </div>
+        <div className="space-y-4 flex-1">
+          <Input type="text" placeholder='e.g. Beach Trip' title='Kit Name' titled value={kitFormData.name} onChangeInput={(e) => updateKitFormField('name', e.target.value)} />
+          <Input placeholder="e.g N200000" titled title="Trip Budget" value={kitFormData.trip_price} optionsLeft={currencyCodes} onSelectLeft={(v) => updateKitFormField('budget_currency_code', v)} onChangeInput={(e) => updateKitFormField('trip_price', e.target.value)} />
+          <Input placeholder="e.g N5000" titled title="Access Price" value={kitFormData.access_price} optionsLeft={currencyCodes} defaultSelectedLeft={kitFormData.access_currency_code || ""} onSelectLeft={(v) => updateKitFormField('access_currency_code', v)} onChangeInput={(e) => updateKitFormField('access_price', e.target.value)} />
+          <Input type="text" placeholder='e.g. Victoria Island, Lagos' title='Trip Destination' titled value={kitFormData.location} onChangeInput={(e) => updateKitFormField('location', e.target.value)} />
+          <Input type="text" placeholder='e.g. 3 days' options={["hours", "days", "weeks", "months", "years"]} title='Trip Duration' value={kitFormData.trip_duration} titled onChangeInput={(e) => updateKitFormField('trip_duration', e.target.value)} defaultSelectedRight={kitFormData.trip_duration_time_frame || ""} onSelectRight={(v) => updateKitFormField('trip_duration_time_frame', v)} />
+          <Input type="text" placeholder='e.g. Beach Trip' textarea title='Kit Description' titled value={kitFormData.description} onChangeInput={(e) => updateKitFormField('description', e.target.value)} />
+          <button onClick={handleAdd} disabled={kitLoading} className="w-full py-3 text-center bg-brand text-white rounded-xl my-3 mb-5">{kitLoading ? (isUpdating ? 'Updating...' : 'Adding...') : (isUpdating ? 'Update' : 'Add')}</button>
+        </div>
       </div>
-      <Input type="text" placeholder='e.g. Beach Trip' title='Kit Name' titled value={kitFormData.name} onChangeInput={(e) => updateKitFormField('name', e.target.value)} />
-      <Input placeholder="e.g N200000" titled title="Trip Budget" value={kitFormData.trip_price} optionsLeft={currencyCodes} onSelectLeft={(v) => updateKitFormField('budget_currency_code', v)} onChangeInput={(e) => updateKitFormField('trip_price', e.target.value)} />
-      <Input placeholder="e.g N5000" titled title="Access Price" value={kitFormData.access_price} optionsLeft={currencyCodes} defaultSelectedLeft={kitFormData.access_currency_code || ""} onSelectLeft={(v) => updateKitFormField('access_currency_code', v)} onChangeInput={(e) => updateKitFormField('access_price', e.target.value)} />
-      <Input type="text" placeholder='e.g. Victoria Island, Lagos' title='Trip Destination' titled value={kitFormData.location} onChangeInput={(e) => updateKitFormField('location', e.target.value)} />
-      <Input type="text" placeholder='e.g. 3 days' options={["hours", "days", "weeks", "months", "years"]} title='Trip Duration' value={kitFormData.trip_duration} titled onChangeInput={(e) => updateKitFormField('trip_duration', e.target.value)} defaultSelectedRight={kitFormData.trip_duration_time_frame || ""} onSelectRight={(v) => updateKitFormField('trip_duration_time_frame', v)} />
-      <Input type="text" placeholder='e.g. Beach Trip' textarea title='Kit Description' titled value={kitFormData.description} onChangeInput={(e) => updateKitFormField('description', e.target.value)} />
-      <button onClick={handleAdd} disabled={kitLoading} className="w-full py-3 text-center bg-brand text-white rounded-xl my-3 mb-5">{kitLoading ? (isUpdating ? 'Updating...' : 'Adding...') : (isUpdating ? 'Update' : 'Add')}</button>
       
     </div>
   )

@@ -1,9 +1,13 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function ImageSelector({ onChange, onChangeFile, className="", previewClassName="" }: { onChange?: (dataUrl: string | null) => void, onChangeFile?: (file: File | null) => void, className?: string, previewClassName?: string }) {
+export default function ImageSelector({ onChange, onChangeFile, value = null, className="", previewClassName="", containerClassName }: { onChange?: (dataUrl: string | null) => void, onChangeFile?: (file: File | null) => void, value?: string | null, className?: string, previewClassName?: string, containerClassName?: string }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<string | null>(value);
   const [isDragging, setIsDragging] = useState(false);
+
+  useEffect(() => {
+    setImage(value ?? null);
+  }, [value]);
 
   const handleFile = (file: File | null) => {
     if (!file) return;
@@ -30,7 +34,7 @@ export default function ImageSelector({ onChange, onChangeFile, className="", pr
   };
 
   return (
-    <div className={`w-full max-w-md mx-auto ${className}`}>
+    <div className={`${containerClassName ?? "w-full max-w-md mx-auto"} ${className}`}>
       <input
         type="file"
         accept="image/*"

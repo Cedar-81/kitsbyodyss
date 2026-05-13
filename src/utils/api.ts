@@ -165,3 +165,4 @@ export const UserAPI = {
 export const ActivitiesAPI = createChildAPI("activities");
 export const FoodAPI = createChildAPI("food");
 export const AccommodationAPI = createChildAPI("accommodation");
+export const TransportationAPI = createChildAPI("transportation");

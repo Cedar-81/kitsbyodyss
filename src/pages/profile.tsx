@@ -69,8 +69,7 @@ export default function Profile() {
         trip_duration: overviewData.duration,
         trip_duration_time_frame: overviewData.duration_time_frame,
         description: overviewData.overview,
-        main_image: overviewData.main_image,
-        images: overviewData.images || [], 
+        image: overviewData.main_image || overviewData.images?.[0] || '',
       });
       console.log("populated form data: ", kitFormData);
       setCurrentKitId(overviewData.id);

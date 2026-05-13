@@ -120,15 +120,18 @@ export default function Navbar({ user }: { user: any }) {
 
     const not_home = location.pathname !== "" && location.pathname !== "/"
 
+    console.log("showlogin: ", not_home, !user)
     useEffect(() => {
         if(not_home && !user) {
             setShowLogin(true)
+        }else{
+            setShowLogin(false)
         }
     }, [user])
 
 
     return (
-        <nav className="h-20 relative">
+        <nav className="relative">
             {/* Sign-in gate */}
             {showLogin && (
                 <div onClick={() => {
@@ -153,7 +156,7 @@ export default function Navbar({ user }: { user: any }) {
             </Modal>
 
             {/* Top bar */}
-            <div className="flex justify-between items-center w-full border-b navbar border-black/20 h-20 z-40 fixed backdrop-blur-3xl top-0 right-0 px-5 md:px-10">
+            <div className={`flex justify-between items-center w-full h-20 z-40 ${!not_home ? "fixed" : "static"} backdrop-blur-3xl top-0 right-0 px-5 md:px-10`}>
                 <Link to={"/"}> <KitsLogo /> </Link>
 
                 <div> 
@@ -195,7 +198,7 @@ export default function Navbar({ user }: { user: any }) {
             {!hideTabNav && (
                 <>
                     {/* Mobile */}
-                    <div className="block text-center lg:hidden bg-white z-10">
+                    <div className="block text-center sticky top-20 w-full right-0 lg:hidden bg-white z-10">
                         <Link to={tabs[0].path} className={tabClass(tabs[0], "border border-black/20 border-b-0")}>
                             Overview
                         </Link>
