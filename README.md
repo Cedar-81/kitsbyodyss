@@ -1,6 +1,6 @@
 # Kits By Odyss
 
-Kits By Odyss is a modern travel sharing web experience that helps users beautifully organize their travel experiance into a reusable shareable kit for others who wants to embark on the same journey. The focuses on for main pillars combining kit overview, food, accomodation and transport logistics into one smooth interface.
+Kits By Odyss is a modern travel sharing web platform that helps users beautifully organise their travel experience into a reusable, shareable kit for others who want to embark on the same journey. It focuses on four main pillars, combining kit overview, food, accommodation, and transport logistics into one smooth interface.
 
 ## Project Overview
 
