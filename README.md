@@ -1,73 +1,71 @@
-# React + TypeScript + Vite
+# Kits By Odyss
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Kits By Odyss is a modern travel sharing web experience that helps users beautifully organize their travel experiance into a reusable shareable kit for others who wants to embark on the same journey. The focuses on for main pillars combining kit overview, food, accomodation and transport logistics into one smooth interface.
 
-Currently, two official plugins are available:
+## Project Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+This project was built as a polished front-end application with a strong focus on user experience, clean UI, and interactive motion. It lets users create curated travel kits with details for transportation, food, accommodation, and activities, then publish them for others to discover.
 
-## React Compiler
+## What I Built
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- A responsive landing experience with animated sections and a premium visual feel
+- A travel-kit creation flow for adding trip details such as location, budget, and duration
+- Dedicated pages for organizing transportation, food, accommodation, and activities
+- A publish/share workflow for making kits public
+- Google authentication and profile-based experiences using Supabase
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- React + TypeScript
+- Vite
+- React Router
+- Zustand for state management
+- Supabase for authentication and data storage
+- Tailwind CSS and HeroUI
+- GSAP for animations
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project Structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- src/pages — main app views and route-based screens
+- src/components — reusable UI components and cards
+- src/utils — API helpers, Supabase integration, and shared logic
+- src/store — global state management
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Getting Started
+
+Install dependencies:
+
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Run the development server:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm run dev
 ```
+
+Build for production:
+
+```bash
+npm run build
+```
+
+## Highlights
+
+- Modern, visually rich interface
+- Structured trip planning experience
+- Real backend integration with Supabase
+- Smooth transitions and motion design
+- Scalable architecture for future product growth
+
+## Future Improvements
+
+- Payment and premium kit access
+- Advanced filtering and search for trip kits
+- Better mobile onboarding and discovery flow
+- Admin tools for moderation and analytics
+
+## Contact
+
+If you want to discuss this project or explore similar work, feel free to reach out.
